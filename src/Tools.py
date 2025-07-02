@@ -4,15 +4,18 @@ import pathlib
 rootPath = pathlib.Path(__file__).parent.parent
 sys.path.append(str(rootPath))
 
+import json
 import datetime
 import loguru
 
 from Tea.exceptions import UnretryableException, TeaException
 from alibabacloud_tea_openapi import models as open_api_models
-from alibabacloud_alidns20150109.client import Client as Client
-from alibabacloud_alidns20150109 import models as models
+from alibabacloud_alidns20150109.client import Client as DnsClient
+from alibabacloud_alidns20150109 import models as DnsModels
 
 import Config
+
+RRName = "w"
 
 def GetDateString():
     now = datetime.datetime.now()
@@ -20,75 +23,87 @@ def GetDateString():
     loguru.logger.debug(dateStr)
     return dateStr
 
-def GetDescribeDomain():
-    # 1. 配置访问客户端
-    loguru.logger.debug(f"UpdateDNS -> [{ip}]")
-    config = open_api_models.Config(access_key_id = Config.AccessKeyID, access_key_secret = Config.AccessKeySecret)
-    client = Client(config)
-    # 访问的域名
+@staticmethod
+def GetClient(region_id: str = None) -> DnsClient:
+    config = open_api_models.Config()
+    config.access_key_id = Config.AccessKeyID
+    config.access_key_secret =  Config.AccessKeySecret
+    config.region_id = region_id
     config.endpoint = 'alidns.cn-hangzhou.aliyuncs.com'
+    return DnsClient(config)
 
-    # 2. 配置请求参数
-    request = models.AddCustomLineRequest()
-    # 设置请求类 request 的参数。 通过设置 request 类的属性设置参数，即 API 中必须要提供的信息
-    # 该参数值为假设值，请您根据实际情况进行填写
+# 获取域名ID列表
+def GetDescribeDomain():
+    id = ""
+    type = ""
+    # 1 配置request
+    request = DnsModels.DescribeDomainRecordsRequest()
     request.lang = "zh"
-    # 该参数值为假设值，请您根据实际情况进行填写
     request.domain_name = "ephraim.site"
-    # 该参数值为假设值，请您根据实际情况进行填写
-    # request.line_name = True
+
+    # 2 配置访问客户端
+    client = GetClient()
 
     # 3. 获取请求结果
     try:
         response = client.describe_domain_records(request)
-        print(response)
-        request_id = response.body.request_id
-        print(request_id)
+        record = response.body.domain_records.record[0]
+        for record in response.body.domain_records.record:
+            # loguru.logger.debug(record)
+            recordID = record.record_id
+            recordsValue = record.value
+            recordsRR  = record.rr
+            recordstype = record.type
+            value = record.value
+            # loguru.logger.debug(f"[{recordID}] -> [{recordsRR}] -> [{recordsValue}] -> [{recordstype}] -> [{value}]")
+            if recordsRR == RRName:
+                id = recordID
+                type = recordstype
     except UnretryableException as e:
-        # 网络异常
-        print(e)
+        loguru.logger.error(e)
     except TeaException as e:
-        # 业务异常
-        print(e)
+        loguru.logger.error(e)
     except Exception as e:
-        # 其他异常
-        print(e) 
+        loguru.logger.error(e) 
+    return id, type
 
-def UpdateDNS(ip):
-    # 1. 配置访问客户端
-    loguru.logger.debug(f"UpdateDNS -> [{ip}]")
-    config = open_api_models.Config(access_key_id = Config.AccessKeyID, access_key_secret = Config.AccessKeySecret)
-    client = Client(config)
-    # 访问的域名
-    config.endpoint = 'alidns.cn-hangzhou.aliyuncs.com'
+# 更新指定的域名解析
+def UpdateDNSIP(ip, rrid, type):
+    # 1 修改解析记录
+    req = DnsModels.UpdateDomainRecordRequest()
+    # 主机记录
+    req.rr = RRName
+    # 记录ID
+    req.record_id = rrid
+    # 将主机记录值改为当前主机IP
+    req.value = ip
+    # 解析记录类型
+    req.type = type
 
-    # 2. 配置请求参数
-    request = models.AddCustomLineRequest()
-    # 设置请求类 request 的参数。 通过设置 request 类的属性设置参数，即 API 中必须要提供的信息
-    # 该参数值为假设值，请您根据实际情况进行填写
-    request.lang = "zh"
-    # 该参数值为假设值，请您根据实际情况进行填写
-    request.domain_name = "ephraim.site"
-    # 该参数值为假设值，请您根据实际情况进行填写
-    # request.line_name = True
+    # 2 配置访问客户端
+    client = GetClient()
 
     # 3. 获取请求结果
     try:
-        response = client.add_custom_line(request)
+        # response = client.update_domain_record_async(req)
+        response = client.update_domain_record(req)
         print(response)
         request_id = response.body.request_id
-        print(request_id)
+        loguru.logger.debug(request_id)
     except UnretryableException as e:
-        # 网络异常
-        print(e)
+        loguru.logger.error(e)
     except TeaException as e:
-        # 业务异常
-        print(e)
+        loguru.logger.error(e)
     except Exception as e:
-        # 其他异常
-        print(e)
+        loguru.logger.error(e)
+
+def UpdateDNS(ip):
+    id, type = GetDescribeDomain()
+    loguru.logger.debug(f"Get RR id -> [{id}] type -> [{type}]")
+    UpdateDNSIP(ip=ip, rrid=id, type=type)
 
 if __name__ == "__main__":
     ip = "192.168.2.100"
-    # UpdateDNS(ip)
-    GetDescribeDomain()
+    id, type = GetDescribeDomain()
+    loguru.logger.debug(f"Get RR id -> [{id}] type -> [{type}]")
+    UpdateDNSIP(ip, id, type=type)

@@ -3,3 +3,4 @@ fastapi
 uvicorn
 requests
 alibabacloud_alidns20150109==3.5.9
+alibabacloud_tea_console

@@ -39,12 +39,14 @@ def syncFunc(data:InDataTest, request: fastapi.Request):
     global gDNSIP
     if data.input == "syncclientip" and data.type == 1:
         loguru.logger.info(f"Incoming client ip -> [{ip}]")
-        if gDNSIP == ip:
-            result = OutDataTest(ip = ip)
-        else:
-            Tools.UpdateDNS(ip)
-            result = OutDataTest(ip = ip, code = 1)
-            gDNSIP = ip
+        result = OutDataTest(ip = ip)
+        # if gDNSIP == ip:
+        #     result = OutDataTest(ip = ip)
+        # else:
+        #     loguru.logger.debug(f"ip[{ip}] is different to old [{gDNSIP}]")
+        #     Tools.UpdateDNS(ip)
+        #     result = OutDataTest(ip = ip, code = 1)
+        #     gDNSIP = ip
         return result
 
     return fastapi.responses.JSONResponse(content={"status": "healthy"}, status_code=200)
