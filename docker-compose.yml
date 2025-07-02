@@ -1,13 +1,24 @@
 services:
-  services:
-    image: imaiguo/jupyter:v1.0
-    container_name: jupyter
+  openapiserver:
+    image: imaiguo/aliyunopenai:v1.0
+    container_name: openapiserver
     restart: always
-    command:
+    command: ["python", "/opt/AliyunOpenAPI/src/RunServer.py"]
     environment:
       TZ: 'Asia/Shanghai'
       LANG: 'C.UTF-8'
     ports:
-      - '7000:7000'
+      - '700:700'
     volumes:
-      - '/opt/WorkSpace/python3:/opt/application/python3'
+      - './:/opt/AliyunOpenAPI'
+
+  openapiclient:
+    image: imaiguo/aliyunopenai:v1.0
+    container_name: openapiclient
+    restart: always
+    command: ["python", "/opt/AliyunOpenAPI/src/RunClient.py"]
+    environment:
+      TZ: 'Asia/Shanghai'
+      LANG: 'C.UTF-8'
+    volumes:
+      - './:/opt/AliyunOpenAPI'

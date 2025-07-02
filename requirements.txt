@@ -1,1 +1,4 @@
-logurn
+loguru
+fastapi
+uvicorn
+requests
