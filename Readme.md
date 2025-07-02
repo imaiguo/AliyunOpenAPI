@@ -1,7 +1,5 @@
 
-
 # 阿里云 DNS云解析
-
 
 ## 1. Debian环境部署
 
@@ -35,4 +33,5 @@
 
 ## 3 参考 
 
-- 云解析DNS公网DNS解析开发参考 APIhttps://help.aliyun.com/zh/dns/api-alidns-2015-01-09-overview
+- 云解析DNS公网DNS解析开发参考API https://help.aliyun.com/zh/dns/api-alidns-2015-01-09-overview
+- 云解析 https://api.aliyun.com/api-tools/sdk/Alidns?version=2015-01-09&language=python-tea&tab=primer-doc

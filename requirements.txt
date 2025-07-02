@@ -2,3 +2,4 @@ loguru
 fastapi
 uvicorn
 requests
+alibabacloud_alidns20150109==3.5.9
