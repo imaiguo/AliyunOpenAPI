@@ -6,6 +6,7 @@ sys.path.append(str(rootPath))
 
 # 启动定时线程，发起http请求
 
+import time
 import loguru
 import requests
 import json
@@ -27,11 +28,13 @@ def doSync():
     res = requests.post(url=ServerUrl, headers={"Content-Type": "application/json"}, data=data)
     if res.status_code == 200:
         jsonStr = json.dumps(res.json(), indent=4, ensure_ascii=False)
-        loguru.logger.debug(jsonStr)
+        if res.json()['code'] == 0:
+            loguru.logger.debug(f"Sync ok, current ip - > [{res.json()['ip']}]")
 
 if __name__ == "__main__":
-    try:
-        doSync()
-    except Exception as e:
-        loguru.logger.error(f"{e}")
-
+    while(True):
+        try:
+            doSync()
+        except Exception as e:
+            loguru.logger.error(f"{e}")
+        time.sleep(60)

@@ -25,6 +25,7 @@ class OutDataTest(pydantic.BaseModel):
     status:int = 200
     code: int = 0
     date: str = Tools.GetDateString()
+    ip: str = None
 
 @app.get("/health")
 def health() -> fastapi.responses.JSONResponse:
@@ -35,7 +36,7 @@ def syncFunc(data:InDataTest, request: fastapi.Request):
     ip = request.client.host
     if data.input == "syncclientip" and data.type == 1:
         loguru.logger.info(f"Incoming client ip -> [{ip}]")
-        result = OutDataTest()
+        result = OutDataTest(ip = ip)
         return result
 
     return fastapi.responses.JSONResponse(content={"status": "healthy"}, status_code=200)
