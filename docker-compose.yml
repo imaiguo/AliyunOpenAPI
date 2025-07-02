@@ -1,0 +1,13 @@
+services:
+  services:
+    image: imaiguo/jupyter:v1.0
+    container_name: jupyter
+    restart: always
+    command:
+    environment:
+      TZ: 'Asia/Shanghai'
+      LANG: 'C.UTF-8'
+    ports:
+      - '7000:7000'
+    volumes:
+      - '/opt/WorkSpace/python3:/opt/application/python3'
