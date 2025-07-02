@@ -16,6 +16,7 @@ import Config
 import src.Tools as Tools
 
 ServerUrl = f"http://{Config.ServerName}:{Config.ServerPort}/heartbeat"
+gDNSIP = "127.0.0.1"
 
 def doSync():
     dataJson = {
@@ -27,9 +28,16 @@ def doSync():
     data = json.dumps(dataJson, indent=4, ensure_ascii=False)
     res = requests.post(url=ServerUrl, headers={"Content-Type": "application/json"}, data=data)
     if res.status_code == 200:
+        global gDNSIP
         jsonStr = json.dumps(res.json(), indent=4, ensure_ascii=False)
         if res.json()['code'] == 0:
-            loguru.logger.debug(f"Sync ok, current ip - > [{res.json()['ip']}]")
+            ip = res.json()['ip']
+            loguru.logger.debug(f"Sync ok, current ip - > [{ip}]")
+
+            if gDNSIP != ip:
+                loguru.logger.debug(f"ip[{ip}] is different to old [{gDNSIP}]")
+                Tools.UpdateDNS(ip)
+                gDNSIP = ip
 
 if __name__ == "__main__":
     while(True):

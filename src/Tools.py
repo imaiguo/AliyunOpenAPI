@@ -85,11 +85,12 @@ def UpdateDNSIP(ip, rrid, type):
 
     # 3. 获取请求结果
     try:
-        # response = client.update_domain_record_async(req)
         response = client.update_domain_record(req)
-        print(response)
-        request_id = response.body.request_id
-        loguru.logger.debug(request_id)
+        if response.status_code == 200:
+            loguru.logger.info(f"RR[{RRName}] is update to ip [{ip}] RequestId-> [{response.body.request_id}]")
+        else:
+            loguru.logger.error(f"RR[{RRName}] is update to ip [{ip}] Failed")
+
     except UnretryableException as e:
         loguru.logger.error(e)
     except TeaException as e:
