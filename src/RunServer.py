@@ -36,6 +36,7 @@ def health() -> fastapi.responses.JSONResponse:
 @app.post("/heartbeat", response_model=OutDataTest)
 def syncFunc(data:InDataTest, request: fastapi.Request):
     ip = request.client.host
+    global gDNSIP
     if data.input == "syncclientip" and data.type == 1:
         loguru.logger.info(f"Incoming client ip -> [{ip}]")
         if gDNSIP == ip:

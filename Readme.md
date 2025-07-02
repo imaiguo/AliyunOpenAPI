@@ -25,9 +25,9 @@
 
 ```bash
 >
-> docker compose up -d openapiserver
+> sudo docker compose up -d openapiserver
 >
-> docker compose up -d openapiclient
+> sudo docker compose up -d openapiclient
 >
 ```
 
@@ -35,3 +35,4 @@
 
 - 云解析DNS公网DNS解析开发参考API https://help.aliyun.com/zh/dns/api-alidns-2015-01-09-overview
 - 云解析 https://api.aliyun.com/api-tools/sdk/Alidns?version=2015-01-09&language=python-tea&tab=primer-doc
+- 阿里云RAM账户管理 https://ram.console.aliyun.com/overview?activeTab=overview

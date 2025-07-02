@@ -20,6 +20,40 @@ def GetDateString():
     loguru.logger.debug(dateStr)
     return dateStr
 
+def GetDescribeDomain():
+    # 1. 配置访问客户端
+    loguru.logger.debug(f"UpdateDNS -> [{ip}]")
+    config = open_api_models.Config(access_key_id = Config.AccessKeyID, access_key_secret = Config.AccessKeySecret)
+    client = Client(config)
+    # 访问的域名
+    config.endpoint = 'alidns.cn-hangzhou.aliyuncs.com'
+
+    # 2. 配置请求参数
+    request = models.AddCustomLineRequest()
+    # 设置请求类 request 的参数。 通过设置 request 类的属性设置参数，即 API 中必须要提供的信息
+    # 该参数值为假设值，请您根据实际情况进行填写
+    request.lang = "zh"
+    # 该参数值为假设值，请您根据实际情况进行填写
+    request.domain_name = "ephraim.site"
+    # 该参数值为假设值，请您根据实际情况进行填写
+    # request.line_name = True
+
+    # 3. 获取请求结果
+    try:
+        response = client.describe_domain_records(request)
+        print(response)
+        request_id = response.body.request_id
+        print(request_id)
+    except UnretryableException as e:
+        # 网络异常
+        print(e)
+    except TeaException as e:
+        # 业务异常
+        print(e)
+    except Exception as e:
+        # 其他异常
+        print(e) 
+
 def UpdateDNS(ip):
     # 1. 配置访问客户端
     loguru.logger.debug(f"UpdateDNS -> [{ip}]")
@@ -32,11 +66,11 @@ def UpdateDNS(ip):
     request = models.AddCustomLineRequest()
     # 设置请求类 request 的参数。 通过设置 request 类的属性设置参数，即 API 中必须要提供的信息
     # 该参数值为假设值，请您根据实际情况进行填写
-    request.lang = "your_value";
+    request.lang = "zh"
     # 该参数值为假设值，请您根据实际情况进行填写
-    request.domain_name = "your_value";
+    request.domain_name = "ephraim.site"
     # 该参数值为假设值，请您根据实际情况进行填写
-    request.line_name = "your_value";
+    # request.line_name = True
 
     # 3. 获取请求结果
     try:
@@ -53,3 +87,8 @@ def UpdateDNS(ip):
     except Exception as e:
         # 其他异常
         print(e)
+
+if __name__ == "__main__":
+    ip = "192.168.2.100"
+    # UpdateDNS(ip)
+    GetDescribeDomain()
