@@ -12,13 +12,15 @@ import json
 import loguru
 
 import Config
+import src.Tools as Tools
 
 ServerUrl = f"http://{Config.ServerName}:{Config.ServerPort}/heartbeat"
 
 def doSync():
     dataJson = {
         "input": "syncclientip",
-        "type": 1
+        "type": 1,
+        "datetime": Tools.GetDateString()
     }
 
     data = json.dumps(dataJson, indent=4, ensure_ascii=False)

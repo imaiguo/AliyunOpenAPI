@@ -25,6 +25,13 @@
 > sudo docker build -t imaiguo/aliyunopenai:v1.0 .
 ```
 
+```bash
+>
+> docker compose up -d openapiserver
+>
+> docker compose up -d openapiclient
+>
+```
 
 ## 3 参考 
 
