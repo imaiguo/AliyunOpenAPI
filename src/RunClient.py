@@ -30,4 +30,8 @@ def doSync():
         loguru.logger.debug(jsonStr)
 
 if __name__ == "__main__":
-    doSync()
+    try:
+        doSync()
+    except Exception as e:
+        loguru.logger.error(f"{e}")
+

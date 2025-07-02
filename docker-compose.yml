@@ -8,7 +8,7 @@ services:
       TZ: 'Asia/Shanghai'
       LANG: 'C.UTF-8'
     ports:
-      - '700:700'
+      - '7000:7000'
     volumes:
       - './:/opt/AliyunOpenAPI'
 
