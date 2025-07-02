@@ -93,15 +93,20 @@ def UpdateDNSIP(ip, rrid, type):
 
     except UnretryableException as e:
         loguru.logger.error(e)
+        return False
     except TeaException as e:
         loguru.logger.error(e)
+        if e.code == "DomainRecordDuplicate":
+            return True
     except Exception as e:
         loguru.logger.error(e)
+        return False
+    return True
 
 def UpdateDNS(ip):
     id, type = GetDescribeDomain()
     loguru.logger.debug(f"Get RR id -> [{id}] type -> [{type}]")
-    UpdateDNSIP(ip=ip, rrid=id, type=type)
+    return UpdateDNSIP(ip=ip, rrid=id, type=type)
 
 if __name__ == "__main__":
     ip = "192.168.2.100"

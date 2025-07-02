@@ -29,15 +29,20 @@ def doSync():
     res = requests.post(url=ServerUrl, headers={"Content-Type": "application/json"}, data=data)
     if res.status_code == 200:
         global gDNSIP
-        jsonStr = json.dumps(res.json(), indent=4, ensure_ascii=False)
+        # jsonStr = json.dumps(res.json(), indent=4, ensure_ascii=False)
         if res.json()['code'] == 0:
             ip = res.json()['ip']
-            loguru.logger.debug(f"Sync ok, current ip - > [{ip}]")
+            loguru.logger.debug(f"get back current ip - > [{ip}]")
 
             if gDNSIP != ip:
                 loguru.logger.debug(f"ip[{ip}] is different to old [{gDNSIP}]")
-                Tools.UpdateDNS(ip)
-                gDNSIP = ip
+                if Tools.UpdateDNS(ip):
+                    loguru.logger.debug(f"Domain Record updated ok.")
+                    gDNSIP = ip
+                else:
+                    loguru.logger.error(f"Domain Record updated failed.")
+            else:
+                loguru.logger.debug(f"ip[{ip}] is same to old[{gDNSIP}]")
 
 if __name__ == "__main__":
     while(True):
