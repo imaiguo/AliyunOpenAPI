@@ -6,6 +6,7 @@ sys.path.append(str(rootPath))
 
 # 启动定时线程，发起http请求
 
+import os
 import time
 import loguru
 import requests
@@ -17,6 +18,7 @@ import src.Tools as Tools
 
 ServerUrl = f"http://{Config.ServerName}:{Config.ServerPort}/heartbeat"
 gDNSIP = "127.0.0.1"
+LogPath = os.path.join(rootPath, "log", "RunClient.log")
 
 def doSync():
     dataJson = {
@@ -44,6 +46,8 @@ def doSync():
                 loguru.logger.debug(f"ip[{ip}] is same to old[{gDNSIP}]")
 
 if __name__ == "__main__":
+    loguru.logger.debug("Client Start ...")
+    loguru.logger.add(LogPath, rotation="1 day", retention="7 days", level="DEBUG")
     while(True):
         try:
             doSync()
