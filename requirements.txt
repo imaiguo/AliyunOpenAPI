@@ -2,5 +2,8 @@ loguru
 fastapi
 uvicorn
 requests
+netifaces
+pyinstaller
+pywin32
 alibabacloud_alidns20150109==3.5.9
 alibabacloud_tea_console
