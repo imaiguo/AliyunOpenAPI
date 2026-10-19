@@ -2,7 +2,6 @@
 # 阿里云 DNS云解析
 
 ## 1. Debian环境部署
-
 设置python虚拟环境
 ```bash
 > sudo apt install python3-venv python3-pip
@@ -12,7 +11,14 @@
 > source /opt/Data/PythonVenv/AliyunOpenAPI/bin/activate
 ```
 
-部署推理环境
+## 2. Windows环境部署
+```bash
+>
+> cd D:\DevTools\PythonVenv
+> python3 -m venv AliyunOpenAPI
+>
+```
+部署环境
 ```bash
 > pip install -r requirements.txt -i https://pypi.tuna.tsinghua.edu.cn/simple
 ```
@@ -20,15 +26,14 @@
 ## 2. Docker镜像制作
 
 ```bash
-> sudo docker build -t imaiguo/aliyunopenai:v1.0 .
+> sudo docker build -t httpdnsclient:1.0 .
 ```
 
 ```bash
 >
-> sudo docker compose up -d openapiserver
->
-> sudo docker compose up -d openapiclient
->
+> sudo docker compose up -d OpenApiHttpDNS
+> sudo docker save -o httpdnsclient.1.0.tar httpdnsclient:1.0
+> sudo docker load -i httpdnsclient.1.0.tar
 ```
 
 ## 3. 把python脚本打包为一个exe
@@ -89,7 +94,30 @@
 >
 ```
 
-## 6. 参考
+## 7. PVE导出虚拟机为qcow2
+
+- 7.1 SSH登录 PVE节点
+- 虚拟机必须关机
+```bash
+> # a. 先查 VMID，假设虚拟机 ID 为100
+> qm list
+>
+> # b. 查看虚拟机硬件，拿到磁盘卷 ID（例如 `local-lvm:vm-100-disk-0`）
+> qm config 100
+>
+> # c. 通过卷 ID 获取宿主机底层路径
+> pvesm path vmdata:vm-102-disk-0
+>
+> # 示例返回：`/dev/pve/vm-100-disk-0`（LVM），如果是目录存储会直接返回文件路径
+>
+> # 执行转换导出 qcow2  `-p` 显示进度条，`-c` 开启 qcow2 压缩（可选，会慢一点）
+>
+> # 源是raw块设备(LVM/ZFS)，-f raw
+> # 如果源磁盘本身就是 qcow2（目录存储 local），去掉 `-f raw`
+> qemu-img convert -p -f raw -O qcow2 /dev/vmdata/vm-102-disk-0 /opt/Data/Nas/程序/vmdisk/debian13-x64-amd64.qcow2
+```
+
+## 8. 参考
 
 - 云解析DNS公网DNS解析开发参考API https://help.aliyun.com/zh/dns/api-alidns-2015-01-09-overview
 - 云解析 https://api.aliyun.com/api-tools/sdk/Alidns?version=2015-01-09&language=python-tea&tab=primer-doc

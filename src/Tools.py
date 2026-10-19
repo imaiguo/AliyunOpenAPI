@@ -4,9 +4,9 @@ import pathlib
 rootPath = pathlib.Path(__file__).parent.parent
 sys.path.append(str(rootPath))
 
-import json
 import datetime
 import loguru
+import requests
 
 from Tea.exceptions import UnretryableException, TeaException
 from alibabacloud_tea_openapi import models as open_api_models
@@ -16,6 +16,20 @@ from alibabacloud_alidns20150109 import models as DnsModels
 import Config
 
 RRName = "w"
+RRDomainName = "ephraim.site"
+
+def GetGlobalIP():
+    url = "http://httpbin.org/ip"
+    try:
+        resp = requests.get(url, timeout=10)
+        resp.raise_for_status()  # 抛出HTTP错误（4xx/5xx）
+        data = resp.json()
+        origin = data["origin"]
+        return origin
+    except requests.exceptions.RequestException as e:
+        loguru.logger.error(f"请求出错: {e}")
+
+    return None
 
 def GetDateString():
     now = datetime.datetime.now()
@@ -39,7 +53,7 @@ def GetDescribeDomain():
     # 1 配置request
     request = DnsModels.DescribeDomainRecordsRequest()
     request.lang = "zh"
-    request.domain_name = "ephraim.site"
+    request.domain_name = RRDomainName
 
     # 2 配置访问客户端
     client = GetClient()
@@ -97,6 +111,7 @@ def UpdateDNSIP(ip, rrid, type):
     except TeaException as e:
         loguru.logger.error(e)
         if e.code == "DomainRecordDuplicate":
+            loguru.logger.error("DomainRecordDuplicate update.")
             return True
     except Exception as e:
         loguru.logger.error(e)
@@ -109,7 +124,10 @@ def UpdateDNS(ip):
     return UpdateDNSIP(ip=ip, rrid=id, type=type)
 
 if __name__ == "__main__":
-    ip = "192.168.2.100"
-    id, type = GetDescribeDomain()
-    loguru.logger.debug(f"Get RR id -> [{id}] type -> [{type}]")
-    UpdateDNSIP(ip, id, type=type)
+    # ip = "192.168.2.100"
+    # id, type = GetDescribeDomain()
+    # loguru.logger.debug(f"Get RR id -> [{id}] type -> [{type}]")
+    # UpdateDNSIP(ip, id, type=type)
+
+    ip = GetGlobalIP()
+    loguru.logger.info(f"Get Global IP ->[{ip}]")

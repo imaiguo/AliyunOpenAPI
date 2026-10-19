@@ -5,6 +5,7 @@ ARG DEBIAN_FRONTEND=noninteractive
 WORKDIR /opt/AliyunOpenAPI
 
 COPY requirements.txt /opt/AliyunOpenAPI/
+COPY src /opt/AliyunOpenAPI/
 
 RUN pip config set global.index-url https://pypi.tuna.tsinghua.edu.cn/simple
 
